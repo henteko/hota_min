@@ -61,7 +61,7 @@ class Infomation < ActiveRecord::Base
           end
         end
       end
-      if 0 <= count
+      if 5 <= count
         result.push({
           :count => count,
           :infomation => info

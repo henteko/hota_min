@@ -35,6 +35,6 @@ class Api::InfomationsController < ApplicationController
       count += 1
     end
 
-    render :json => {'result' => json}
+    render :json => {'hotspot' => json}
   end
 end
