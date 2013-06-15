@@ -1,6 +1,8 @@
 class Infomation < ActiveRecord::Base
   attr_accessible :birth_year, :latitude, :longitude
 
+  COUNT_NUM = 1
+
   def self.set(args)
     return false if !Infomation.check_set_args?(args)
     latitude = args[:latitude]
@@ -61,7 +63,7 @@ class Infomation < ActiveRecord::Base
           end
         end
       end
-      if 5 <= count
+      if COUNT_NUM <= count
         result.push({
           :count => count,
           :infomation => info
