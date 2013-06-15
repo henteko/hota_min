@@ -1,0 +1,31 @@
+// Place all the styles related to the roots controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+
+body {
+  zoom: 100%;
+  width: 800px;
+  color: #fff;
+  background-color: #016;
+}
+
+#link {
+  left: 620px;
+  top: -1600px;
+  position: relative;
+}
+#human {
+  top: -580px;
+  left: 330px;
+  position: relative;
+}
+#icon {
+  width: 360px;
+  position: relative;
+}
+#next {
+  width: 360px;
+  position: relative;
+  top: -1500px;
+  left: -200px;
+}
