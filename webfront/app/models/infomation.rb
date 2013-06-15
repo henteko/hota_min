@@ -68,6 +68,10 @@ class Infomation < ActiveRecord::Base
         })
       end
     end
+
+    result.sort! do |a, b|
+      b.count <=> a.count
+    end
     return result
   end
 

@@ -1,7 +1,9 @@
 Webfront::Application.routes.draw do
 
   namespace :api do
-    resources :infomations do
+    resource :infomations do
+      get '/:birth_year' => 'infomations#search'
+      get 'hotspot/:birth_yaer' => 'infomations#hotspot'
     end
   end
   # The priority is based upon order of creation:
