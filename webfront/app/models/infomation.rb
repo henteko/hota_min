@@ -6,11 +6,17 @@ class Infomation < ActiveRecord::Base
     latitude = args[:latitude]
     longitude = args[:longitude]
     birth_year = args[:birth_year]
+    user_id = args[:user_id]
 
-    infomation = Infomation.new
+    from = Time.now
+    to = from + 600
+    infomation = Infomation.find(:all, :conditions => {:user_id => user_id, :updated_at => from...to})
+
+    infomation = Infomation.new if infomation.nil?
     infomation.latitude = latitude
     infomation.longitude = longitude
     infomation.birth_year = birth_year
+    infomation.user_id = user_id
 
     infomation.save
   end
@@ -19,8 +25,9 @@ class Infomation < ActiveRecord::Base
     latitude = args[:latitude] || ''
     longitude = args[:longitude] || ''
     birth_year = args[:birth_year] || ''
+    user_id = args[:user_id] || ''
 
-    return false if latitude.blank? || longitude.blank? || birth_year.blank?
+    return false if latitude.blank? || longitude.blank? || birth_year.blank? || user_id.blank?
     return true
   end
 
@@ -30,11 +37,11 @@ class Infomation < ActiveRecord::Base
     to = from + 600
 
     g_infomations = []
-    infomations = Infomation.find(:all, :conditions => {:updated_at => from...to})
+    infomations = Infomation.find_by_all(:all, :conditions => {:updated_at => from...to})
     infomations.each do |info|
       _generation = Infomation.get_generation(info.birth_year)
       if generation == _generation
-        g_infomations.push(info) 
+        g_infomations.push(info)
       end
     end
 
