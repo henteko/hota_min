@@ -8,9 +8,7 @@ class Infomation < ActiveRecord::Base
     birth_year = args[:birth_year]
     user_id = args[:user_id]
 
-    from = Time.now
-    to = from + 600
-    infomation = Infomation.find(:all, :conditions => {:user_id => user_id, :updated_at => from...to})
+    infomation = Infomation.search_from_to(600, :first) 
 
     infomation = Infomation.new if infomation.nil?
     infomation.latitude = latitude
@@ -31,13 +29,18 @@ class Infomation < ActiveRecord::Base
     return true
   end
 
+  def self.search_from_to(minuts, option)
+    from = Time.now - minuts 
+    to = from + minuts
+
+    return Infomation.find(option, :conditions => {:updated_at => from...to})
+  end
+
   def self.lookup(birth_year)
     generation = Infomation.get_generation(birth_year)
-    from = Time.now
-    to = from + 600
 
     g_infomations = []
-    infomations = Infomation.find_by_all(:all, :conditions => {:updated_at => from...to})
+    infomations = Infomation.search_from_to(600, :all) 
     infomations.each do |info|
       _generation = Infomation.get_generation(info.birth_year)
       if generation == _generation
