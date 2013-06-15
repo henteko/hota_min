@@ -4,6 +4,9 @@ class Api::InfomationsController < ApplicationController
     render :json => {'result' => result}
   end
 
-  def index
+  def show
+    birth_year = params[:id] || '1991'
+    result = Infomation.lookup(birth_year)
+    render :json => {'result' => result}
   end
 end
