@@ -1,6 +1,9 @@
 Webfront::Application.routes.draw do
   root :to => 'roots#index'
 
+  resource :maps, :only => [:show] do
+  end
+
   namespace :api do
     resource :infomations do
       get '/:birth_year' => 'infomations#search'

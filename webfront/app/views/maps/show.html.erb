@@ -1,0 +1,6 @@
+<div id="gmap" style="width: 100%; height: 600px; border: 1px solid Gray;"></div>
+<div style="display=none;">
+  <% @results.each do |result| %>
+    <data class="infomation" latitude=<%= result[:infomation].latitude %> longitude=<%= result[:infomation].longitude %> count=<%= result[:count] %> ></data>
+  <% end %>
+</div>

@@ -2,6 +2,8 @@ class Infomation < ActiveRecord::Base
   attr_accessible :birth_year, :latitude, :longitude
 
   COUNT_NUM = 1
+  LIMIT_DISTANCE = 1000
+  MINUTS = 600000
 
   def self.set(args)
     return false if !Infomation.check_set_args?(args)
@@ -10,7 +12,7 @@ class Infomation < ActiveRecord::Base
     birth_year = args[:birth_year]
     user_id = args[:user_id]
 
-    infomation = Infomation.search_from_to(600, :first) 
+    infomation = Infomation.search_from_to(MINUTS, :first, user_id) 
 
     infomation = Infomation.new if infomation.nil?
     infomation.latitude = latitude
@@ -31,34 +33,24 @@ class Infomation < ActiveRecord::Base
     return true
   end
 
-  def self.search_from_to(minuts, option)
+  def self.search_from_to(minuts, option, user_id = nil)
     from = Time.now - minuts 
     to = from + minuts
 
-    return Infomation.find(option, :conditions => {:updated_at => from...to})
+    return Infomation.find(option, :conditions => {:updated_at => from...to}) if user_id.nil?
+    return Infomation.find(option, :conditions => {:user_id => user_id, :updated_at => from...to})
   end
 
-  def self.lookup(birth_year)
-    generation = Infomation.get_generation(birth_year)
-
-    g_infomations = []
-    infomations = Infomation.search_from_to(600, :all) 
-    infomations.each do |info|
-      _generation = Infomation.get_generation(info.birth_year)
-      if generation == _generation
-        g_infomations.push(info)
-      end
-    end
-
+  def self.count_distance(infomations)
     result = []
-    g_infomations.each do |info|
+    infomations.each do |info|
       count = 0
       calculation = Infomation.calculation(info.latitude.to_f, info.longitude.to_f)
       max = calculation[:max]
       min = calculation[:min]
-      g_infomations.each do |_info|
-        if max[:latitude] <= _info.latitude.to_f && min[:latitude] >= _info.latitude.to_f
-          if max[:longitude] <= _info.longitude.to_f && min[:longitude] >= _info.longitude.to_f
+      infomations.each do |_info|
+        if max[:latitude] >= _info.latitude.to_f && min[:latitude] <= _info.latitude.to_f
+          if max[:longitude] >= _info.longitude.to_f && min[:longitude] <= _info.longitude.to_f
             count += 1
           end
         end
@@ -77,6 +69,26 @@ class Infomation < ActiveRecord::Base
     return result
   end
 
+  def self.all_generation
+    infomations = Infomation.search_from_to(MINUTS, :all) 
+    return Infomation.count_distance(infomations)
+  end
+
+  def self.lookup(birth_year)
+    generation = Infomation.get_generation(birth_year)
+
+    g_infomations = []
+    infomations = Infomation.search_from_to(MINUTS, :all) 
+    infomations.each do |info|
+      _generation = Infomation.get_generation(info.birth_year)
+      if generation == _generation
+        g_infomations.push(info)
+      end
+    end
+
+    return Infomation.count_distance(g_infomations)
+  end
+
   def self.get_generation(birth_year)
     d = Date.today
     year = d.strftime("%Y")
@@ -86,8 +98,6 @@ class Infomation < ActiveRecord::Base
   end
 
   def self.calculation(latitude, longitude)
-    limit = 100
-
     latitude_second = 0.00027778
     latitude_second_distance = 30.8184
 
@@ -96,11 +106,11 @@ class Infomation < ActiveRecord::Base
     longitude_degrees = cir / 360
     longitude_second_distance = cir / (360 * 60 * 60)
 
-    max_latitude = latitude + (limit / latitude_second_distance * latitude_second)
-    max_longitude = longitude + (limit / longitude_second_distance * latitude_second)
+    max_latitude = latitude + (LIMIT_DISTANCE / latitude_second_distance * latitude_second)
+    max_longitude = longitude + (LIMIT_DISTANCE / longitude_second_distance * latitude_second)
 
-    min_latitude = latitude - (limit / latitude_second_distance * latitude_second)
-    min_longitude = longitude - (limit / longitude_second_distance * latitude_second)
+    min_latitude = latitude - (LIMIT_DISTANCE / latitude_second_distance * latitude_second)
+    min_longitude = longitude - (LIMIT_DISTANCE / longitude_second_distance * latitude_second)
 
     return {
       :max => {
